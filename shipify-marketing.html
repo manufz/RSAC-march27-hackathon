@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shipify — Autonomous Engineering Platform</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0a;
+      --surface: #111;
+      --border: #222;
+      --text: #fff;
+      --muted: #888;
+      --sean: #7F77DD;
+      --chris: #D85A30;
+      --amy: #1D9E75;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      line-height: 1.6;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 2rem;
+      background: rgba(10,10,10,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; }
+    .nav-cta {
+      background: var(--text); color: var(--bg);
+      border: none; padding: 0.5rem 1.25rem;
+      border-radius: 6px; font-size: 0.875rem; font-weight: 600;
+      cursor: pointer; transition: opacity 0.2s;
+    }
+    .nav-cta:hover { opacity: 0.85; }
+
+    /* ── HERO ── */
+    #hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      padding: 8rem 2rem 4rem;
+    }
+    .hero-eyebrow {
+      font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 1.5rem;
+    }
+    .hero-logo {
+      font-size: clamp(64px, 10vw, 96px);
+      font-weight: 800; letter-spacing: -0.04em;
+      background: linear-gradient(135deg, #fff 40%, #888);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+      margin-bottom: 1.5rem;
+    }
+    .hero-headline {
+      font-size: clamp(32px, 5vw, 52px);
+      font-weight: 700; letter-spacing: -0.03em;
+      max-width: 700px; line-height: 1.15;
+      margin-bottom: 1rem;
+    }
+    .hero-sub {
+      font-size: 1.125rem; color: var(--muted);
+      margin-bottom: 2.5rem;
+    }
+    .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+    .btn-primary {
+      background: var(--text); color: var(--bg);
+      border: none; padding: 0.875rem 2rem;
+      border-radius: 8px; font-size: 1rem; font-weight: 600;
+      cursor: pointer; transition: opacity 0.2s;
+    }
+    .btn-primary:hover { opacity: 0.85; }
+    .btn-secondary {
+      background: transparent; color: var(--text);
+      border: 1px solid var(--border); padding: 0.875rem 2rem;
+      border-radius: 8px; font-size: 1rem; font-weight: 500;
+      cursor: pointer; transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-secondary:hover { border-color: #555; }
+    .hero-footnote { margin-top: 3rem; font-size: 0.75rem; color: #444; }
+    .hero-footnote span { color: #666; }
+
+    /* ── SECTION SHARED ── */
+    section { padding: 6rem 2rem; }
+    .section-label {
+      font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 1rem;
+    }
+    .section-title {
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 700; letter-spacing: -0.03em;
+      margin-bottom: 1rem;
+    }
+    .section-sub { color: var(--muted); max-width: 520px; }
+    .section-header { margin-bottom: 3.5rem; }
+
+    /* ── AGENTS ── */
+    #agents { background: var(--bg); }
+    .agents-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      max-width: 1100px; margin: 0 auto;
+    }
+    .agent-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem;
+      transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+      position: relative;
+      overflow: hidden;
+    }
+    .agent-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 3px;
+    }
+    .agent-card.sean::before { background: var(--sean); }
+    .agent-card.chris::before { background: var(--chris); }
+    .agent-card.amy::before { background: var(--amy); }
+
+    .agent-card:hover { transform: translateY(-4px); }
+    .agent-card.sean:hover { box-shadow: 0 0 0 1px var(--sean), 0 16px 40px rgba(127,119,221,0.15); border-color: var(--sean); }
+    .agent-card.chris:hover { box-shadow: 0 0 0 1px var(--chris), 0 16px 40px rgba(216,90,48,0.15); border-color: var(--chris); }
+    .agent-card.amy:hover { box-shadow: 0 0 0 1px var(--amy), 0 16px 40px rgba(29,158,117,0.15); border-color: var(--amy); }
+
+    .agent-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem; }
+    .agent-avatar {
+      width: 64px; height: 64px; border-radius: 50%;
+      border: 2px solid;
+      flex-shrink: 0;
+      overflow: hidden;
+      display: block;
+    }
+    .agent-avatar svg { width: 100%; height: 100%; display: block; }
+    .sean .agent-avatar { border-color: var(--sean); }
+    .chris .agent-avatar { border-color: var(--chris); }
+    .amy .agent-avatar { border-color: var(--amy); }
+
+    .agent-meta { flex: 1; }
+    .agent-role {
+      font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase;
+      font-weight: 600; margin-bottom: 0.2rem;
+    }
+    .sean .agent-role { color: var(--sean); }
+    .chris .agent-role { color: var(--chris); }
+    .amy .agent-role { color: var(--amy); }
+
+    .agent-name { font-size: 1.25rem; font-weight: 700; }
+    .agent-tagline { font-size: 0.875rem; color: var(--muted); margin-bottom: 1rem; font-style: italic; }
+    .agent-bio { font-size: 0.875rem; color: #aaa; margin-bottom: 1.25rem; line-height: 1.6; }
+
+    .tech-pills { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1.5rem; }
+    .pill {
+      font-size: 0.7rem; padding: 0.25rem 0.6rem;
+      border-radius: 4px; border: 1px solid var(--border);
+      color: var(--muted); background: rgba(255,255,255,0.03);
+    }
+
+    .agent-status {
+      display: flex; align-items: center; gap: 0.6rem;
+      padding: 0.75rem 1rem;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    .pulse-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      flex-shrink: 0;
+      animation: pulse 2s infinite;
+    }
+    .sean .pulse-dot { background: var(--sean); box-shadow: 0 0 0 0 rgba(127,119,221,0.4); }
+    .chris .pulse-dot { background: var(--chris); box-shadow: 0 0 0 0 rgba(216,90,48,0.4); }
+    .amy .pulse-dot { background: var(--amy); box-shadow: 0 0 0 0 rgba(29,158,117,0.4); }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 currentColor; }
+      70% { box-shadow: 0 0 0 6px transparent; }
+      100% { box-shadow: 0 0 0 0 transparent; }
+    }
+    .sean .pulse-dot { animation: pulse-sean 2s infinite; }
+    .chris .pulse-dot { animation: pulse-chris 2s infinite; }
+    .amy .pulse-dot { animation: pulse-amy 2s infinite; }
+    @keyframes pulse-sean { 0%,100% { box-shadow: 0 0 0 0 rgba(127,119,221,0.5); } 70% { box-shadow: 0 0 0 6px rgba(127,119,221,0); } }
+    @keyframes pulse-chris { 0%,100% { box-shadow: 0 0 0 0 rgba(216,90,48,0.5); } 70% { box-shadow: 0 0 0 6px rgba(216,90,48,0); } }
+    @keyframes pulse-amy { 0%,100% { box-shadow: 0 0 0 0 rgba(29,158,117,0.5); } 70% { box-shadow: 0 0 0 6px rgba(29,158,117,0); } }
+
+    .status-text {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.75rem; color: #ccc;
+      transition: opacity 0.4s;
+    }
+    .status-text.fade { opacity: 0; }
+
+    /* ── HOW IT WORKS ── */
+    #how { background: #0d0d0d; }
+    .pipeline {
+      display: flex; align-items: center;
+      max-width: 900px; margin: 0 auto;
+      gap: 0; flex-wrap: nowrap; overflow-x: auto;
+      padding-bottom: 1rem;
+    }
+    .pipeline-node {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 0.75rem; flex-shrink: 0;
+    }
+    .pipeline-circle {
+      width: 64px; height: 64px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .pipeline-circle.spec { background: rgba(255,255,255,0.08); border: 2px solid #444; color: #aaa; }
+    .pipeline-circle.sean-c { background: rgba(127,119,221,0.15); border: 2px solid var(--sean); color: var(--sean); }
+    .pipeline-circle.chris-c { background: rgba(216,90,48,0.15); border: 2px solid var(--chris); color: var(--chris); }
+    .pipeline-circle.amy-c { background: rgba(29,158,117,0.15); border: 2px solid var(--amy); color: var(--amy); }
+    .pipeline-circle.live { background: rgba(255,255,255,0.05); border: 2px solid #555; color: #fff; font-size: 1.2rem; }
+
+    .pipeline-label { font-size: 0.8rem; color: var(--muted); text-align: center; max-width: 80px; }
+    .pipeline-label strong { display: block; color: var(--text); font-size: 0.875rem; }
+
+    .pipeline-line {
+      flex: 1; height: 2px;
+      background: linear-gradient(90deg, #333, #444);
+      min-width: 40px; flex-shrink: 1;
+      position: relative;
+    }
+    .pipeline-line::after {
+      content: '›';
+      position: absolute; right: -6px; top: 50%;
+      transform: translateY(-50%);
+      color: #555; font-size: 1rem;
+    }
+
+    /* ── WHY SHIPIFY ── */
+    #why { background: var(--bg); }
+    .why-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem; max-width: 900px; margin: 0 auto;
+    }
+    .why-card {
+      padding: 2rem;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--surface);
+    }
+    .why-icon { font-size: 2rem; margin-bottom: 1rem; }
+    .why-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .why-desc { font-size: 0.875rem; color: var(--muted); line-height: 1.6; }
+
+    /* ── TECH STACK ── */
+    #stack { background: #0d0d0d; }
+    .stack-grid {
+      display: grid; grid-template-columns: repeat(5, 1fr);
+      gap: 1rem; max-width: 1000px; margin: 0 auto;
+    }
+    .stack-card {
+      padding: 1.5rem 1.25rem;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface);
+      text-align: center;
+    }
+    .stack-name { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .stack-desc { font-size: 0.75rem; color: var(--muted); line-height: 1.5; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+    footer .footer-main { margin-bottom: 0.4rem; }
+    footer .footer-sub { font-size: 0.7rem; color: #444; }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.25s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal {
+      background: #111; border: 1px solid #333;
+      border-radius: 14px; padding: 2.5rem;
+      width: 100%; max-width: 420px;
+      transform: translateY(16px);
+      transition: transform 0.25s;
+    }
+    .modal-overlay.open .modal { transform: translateY(0); }
+    .modal-title { font-size: 1.4rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .modal-sub { font-size: 0.875rem; color: var(--muted); margin-bottom: 1.75rem; }
+    .modal input[type="email"] {
+      width: 100%; padding: 0.875rem 1rem;
+      background: #0a0a0a; border: 1px solid #333;
+      border-radius: 8px; color: var(--text);
+      font-size: 1rem; margin-bottom: 1rem;
+      outline: none; transition: border-color 0.2s;
+    }
+    .modal input[type="email"]:focus { border-color: #555; }
+    .modal input[type="email"]::placeholder { color: #555; }
+    .modal-submit {
+      width: 100%; padding: 0.875rem;
+      background: var(--text); color: var(--bg);
+      border: none; border-radius: 8px;
+      font-size: 1rem; font-weight: 600;
+      cursor: pointer; transition: opacity 0.2s;
+    }
+    .modal-submit:hover { opacity: 0.85; }
+    .modal-close {
+      position: absolute; top: 1rem; right: 1rem;
+      background: none; border: none; color: var(--muted);
+      font-size: 1.25rem; cursor: pointer; line-height: 1;
+      padding: 0.25rem 0.5rem;
+    }
+    .modal-close:hover { color: var(--text); }
+    .modal { position: relative; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .agents-grid { grid-template-columns: 1fr; max-width: 480px; margin: 0 auto; }
+      .why-grid { grid-template-columns: 1fr; max-width: 480px; margin: 0 auto; }
+      .stack-grid { grid-template-columns: repeat(2, 1fr); max-width: 480px; margin: 0 auto; }
+    }
+    @media (max-width: 600px) {
+      nav { padding: 1rem; }
+      section { padding: 4rem 1.25rem; }
+      .pipeline { gap: 0; }
+      .pipeline-circle { width: 48px; height: 48px; font-size: 0.6rem; }
+      .stack-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">Shipify</div>
+    <button class="nav-cta" onclick="openModal()">Request early access</button>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <p class="hero-eyebrow">Autonomous Engineering Platform</p>
+    <div class="hero-logo">Shipify</div>
+    <h1 class="hero-headline">Your engineering team,<br>fully autonomous.</h1>
+    <p class="hero-sub">Spec in. Secured. Shipped. No standups.</p>
+    <div class="hero-actions">
+      <button class="btn-primary" onclick="openModal()">Request early access</button>
+      <button class="btn-secondary">Watch demo</button>
+    </div>
+    <p class="hero-footnote">Agents powered by <span>OpenClaw</span></p>
+  </section>
+
+  <!-- AGENTS -->
+  <section id="agents">
+    <div style="max-width:1100px;margin:0 auto;">
+      <div class="section-header">
+        <p class="section-label">The Team</p>
+        <h2 class="section-title">Meet your agents</h2>
+        <p class="section-sub">Three autonomous engineers. One shared mission: ship production-ready code, end to end.</p>
+      </div>
+      <div class="agents-grid">
+
+        <!-- SEAN -->
+        <div class="agent-card sean">
+          <div class="agent-header">
+            <!-- Sean: dark-haired dev, focused, slight stubble -->
+            <div class="agent-avatar">
+              <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                <!-- bg -->
+                <rect width="64" height="64" fill="#1a1530"/>
+                <!-- neck -->
+                <rect x="26" y="44" width="12" height="10" rx="3" fill="#c8a882"/>
+                <!-- shoulders / shirt -->
+                <path d="M10 64 Q10 52 20 50 L26 54 L38 54 L44 50 Q54 52 54 64Z" fill="#2d2060"/>
+                <!-- hoodie detail -->
+                <path d="M26 54 L32 58 L38 54" fill="none" stroke="#3d30a0" stroke-width="1.5"/>
+                <!-- head -->
+                <ellipse cx="32" cy="30" rx="14" ry="16" fill="#c8a882"/>
+                <!-- hair — dark, slightly messy -->
+                <path d="M18 26 Q18 12 32 11 Q46 12 46 26 Q44 18 32 17 Q20 18 18 26Z" fill="#1a1a2e"/>
+                <path d="M18 24 Q17 20 19 17" stroke="#1a1a2e" stroke-width="3" fill="none" stroke-linecap="round"/>
+                <path d="M46 24 Q47 21 45 18" stroke="#1a1a2e" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                <!-- ears -->
+                <ellipse cx="18" cy="31" rx="3" ry="4" fill="#c8a882"/>
+                <ellipse cx="46" cy="31" rx="3" ry="4" fill="#c8a882"/>
+                <!-- eyes — focused, slightly narrowed -->
+                <ellipse cx="26" cy="30" rx="3.5" ry="3" fill="#fff"/>
+                <ellipse cx="38" cy="30" rx="3.5" ry="3" fill="#fff"/>
+                <circle cx="27" cy="30" r="2" fill="#2a1a6e"/>
+                <circle cx="39" cy="30" r="2" fill="#2a1a6e"/>
+                <circle cx="27.8" cy="29.2" r="0.7" fill="#fff"/>
+                <circle cx="39.8" cy="29.2" r="0.7" fill="#fff"/>
+                <!-- brow — slightly furrowed -->
+                <path d="M23 26.5 Q26 25.5 29 26.5" stroke="#3a2a1a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                <path d="M35 26.5 Q38 25.5 41 26.5" stroke="#3a2a1a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                <!-- nose -->
+                <path d="M31 33 Q30 36 32 37 Q34 36 33 33" stroke="#b08060" stroke-width="1" fill="none" stroke-linecap="round"/>
+                <!-- stubble -->
+                <path d="M24 40 Q32 43 40 40" stroke="#b08060" stroke-width="1" fill="none" stroke-linecap="round"/>
+                <rect x="25" y="38" width="14" height="5" rx="3" fill="#c8a882"/>
+                <path d="M25 39 Q32 42 39 39" fill="#b89070" opacity="0.4"/>
+                <!-- mouth — slight smirk -->
+                <path d="M27 40 Q32 43 37 40" stroke="#8a5a3a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                <!-- glasses -->
+                <rect x="22" y="27.5" width="9" height="6" rx="2.5" fill="none" stroke="#7F77DD" stroke-width="1.2"/>
+                <rect x="33" y="27.5" width="9" height="6" rx="2.5" fill="none" stroke="#7F77DD" stroke-width="1.2"/>
+                <line x1="31" y1="30.5" x2="33" y2="30.5" stroke="#7F77DD" stroke-width="1.2"/>
+              </svg>
+            </div>
+            <div class="agent-meta">
+              <div class="agent-role">Developer</div>
+              <div class="agent-name">Sean</div>
+            </div>
+          </div>
+          <p class="agent-tagline">"Builds scalable architecture and turns caffeine into error-free code."</p>
+          <p class="agent-bio">Methodical and relentless. Sean ships PRs while you sleep — architecting clean systems, resolving conflicts, and keeping the commit history spotless.</p>
+          <div class="tech-pills">
+            <span class="pill">Kiro</span>
+            <span class="pill">Ghost.build</span>
+          </div>
+          <div class="agent-status">
+            <div class="pulse-dot"></div>
+            <span class="status-text" id="sean-status">Committing main.py...</span>
+          </div>
+        </div>
+
+        <!-- CHRISTOPHER -->
+        <div class="agent-card chris">
+          <div class="agent-header">
+            <!-- Christopher: sharp, close-cropped hair, intense look -->
+            <div class="agent-avatar">
+              <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                <!-- bg -->
+                <rect width="64" height="64" fill="#1e0f0a"/>
+                <!-- neck -->
+                <rect x="26" y="44" width="12" height="10" rx="3" fill="#d4a574"/>
+                <!-- shoulders / tactical jacket -->
+                <path d="M10 64 Q10 52 20 50 L26 54 L38 54 L44 50 Q54 52 54 64Z" fill="#1a1a1a"/>
+                <path d="M26 54 L32 56 L38 54" fill="none" stroke="#333" stroke-width="1.5"/>
+                <!-- collar detail -->
+                <path d="M20 50 L26 54 L26 50Z" fill="#111"/>
+                <path d="M44 50 L38 54 L38 50Z" fill="#111"/>
+                <!-- head -->
+                <ellipse cx="32" cy="30" rx="14" ry="16" fill="#d4a574"/>
+                <!-- hair — very close cropped, dark -->
+                <path d="M18 25 Q18 11 32 11 Q46 11 46 25 Q44 16 32 15 Q20 16 18 25Z" fill="#111"/>
+                <!-- fade sides -->
+                <path d="M18 25 Q18 20 20 17" stroke="#111" stroke-width="4" fill="none" stroke-linecap="round"/>
+                <path d="M46 25 Q46 20 44 17" stroke="#111" stroke-width="4" fill="none" stroke-linecap="round"/>
+                <!-- ears -->
+                <ellipse cx="18" cy="31" rx="3" ry="4" fill="#d4a574"/>
+                <ellipse cx="46" cy="31" rx="3" ry="4" fill="#d4a574"/>
+                <!-- eyes — sharp, intense, slightly narrowed -->
+                <ellipse cx="26" cy="30" rx="3.5" ry="2.8" fill="#fff"/>
+                <ellipse cx="38" cy="30" rx="3.5" ry="2.8" fill="#fff"/>
+                <circle cx="27" cy="30" r="2.2" fill="#1a0800"/>
+                <circle cx="39" cy="30" r="2.2" fill="#1a0800"/>
+                <circle cx="27.8" cy="29.2" r="0.7" fill="#fff"/>
+                <circle cx="39.8" cy="29.2" r="0.7" fill="#fff"/>
+                <!-- sharp brows -->
+                <path d="M22 26 L29 27" stroke="#2a1a0a" stroke-width="2" fill="none" stroke-linecap="round"/>
+                <path d="M35 27 L42 26" stroke="#2a1a0a" stroke-width="2" fill="none" stroke-linecap="round"/>
+                <!-- nose — strong bridge -->
+                <path d="M31 32 L30 36 Q32 37.5 34 36 L33 32" stroke="#b8845a" stroke-width="1" fill="none" stroke-linecap="round"/>
+                <!-- jaw — defined -->
+                <path d="M20 36 Q20 44 32 46 Q44 44 44 36" fill="#c89060" opacity="0.3"/>
+                <!-- mouth — straight, serious -->
+                <path d="M27 40 Q32 41.5 37 40" stroke="#8a5030" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                <!-- scar detail — subtle -->
+                <path d="M38 34 L40 37" stroke="#b07040" stroke-width="0.8" fill="none" stroke-linecap="round" opacity="0.6"/>
+              </svg>
+            </div>
+            <div class="agent-meta">
+              <div class="agent-role">Cybersec / Pentester</div>
+              <div class="agent-name">Christopher</div>
+            </div>
+          </div>
+          <p class="agent-tagline">"Monitors threats, secures data endpoints, and ensures compliance."</p>
+          <p class="agent-bio">Paranoid in the best way. Christopher red-teams every PR before it merges — scanning for vulnerabilities, patching issues, and never letting a single exploit slip through.</p>
+          <div class="tech-pills">
+            <span class="pill">Macroscope AST</span>
+          </div>
+          <div class="agent-status">
+            <div class="pulse-dot"></div>
+            <span class="status-text" id="chris-status">Reviewing PR #48 — scanning for vulnerabilities...</span>
+          </div>
+        </div>
+
+        <!-- AMY -->
+        <div class="agent-card amy">
+          <div class="agent-header">
+            <!-- Amy: calm, confident, shoulder-length hair -->
+            <div class="agent-avatar">
+              <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                <!-- bg -->
+                <rect width="64" height="64" fill="#091a14"/>
+                <!-- hair back layer -->
+                <path d="M17 30 Q15 44 18 54 Q24 58 32 58 Q40 58 46 54 Q49 44 47 30 Q44 14 32 13 Q20 14 17 30Z" fill="#2a1a0a"/>
+                <!-- neck -->
+                <rect x="26" y="44" width="12" height="10" rx="3" fill="#e8b896"/>
+                <!-- shoulders / clean top -->
+                <path d="M10 64 Q10 52 20 50 L26 54 L38 54 L44 50 Q54 52 54 64Z" fill="#0d3d2a"/>
+                <!-- head -->
+                <ellipse cx="32" cy="30" rx="13.5" ry="15.5" fill="#e8b896"/>
+                <!-- hair front — parted, flows past shoulders -->
+                <path d="M18.5 24 Q18 14 32 13 Q46 14 45.5 24 Q43 16 32 16 Q21 16 18.5 24Z" fill="#2a1a0a"/>
+                <!-- hair side strands -->
+                <path d="M18.5 24 Q16 30 17 42 Q19 48 21 50" stroke="#2a1a0a" stroke-width="5" fill="none" stroke-linecap="round"/>
+                <path d="M45.5 24 Q48 30 47 42 Q45 48 43 50" stroke="#2a1a0a" stroke-width="5" fill="none" stroke-linecap="round"/>
+                <!-- ears -->
+                <ellipse cx="18.5" cy="31" rx="3" ry="4" fill="#e8b896"/>
+                <ellipse cx="45.5" cy="31" rx="3" ry="4" fill="#e8b896"/>
+                <!-- eyes — calm, open, confident -->
+                <ellipse cx="26" cy="30" rx="3.5" ry="3.2" fill="#fff"/>
+                <ellipse cx="38" cy="30" rx="3.5" ry="3.2" fill="#fff"/>
+                <circle cx="27" cy="30" r="2.2" fill="#1a3a2a"/>
+                <circle cx="39" cy="30" r="2.2" fill="#1a3a2a"/>
+                <circle cx="27.8" cy="29.2" r="0.7" fill="#fff"/>
+                <circle cx="39.8" cy="29.2" r="0.7" fill="#fff"/>
+                <!-- lashes — top -->
+                <path d="M22.5 27.5 Q26 26.5 29.5 27.5" stroke="#2a1a0a" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+                <path d="M34.5 27.5 Q38 26.5 41.5 27.5" stroke="#2a1a0a" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+                <!-- brows — clean arched -->
+                <path d="M23 26 Q26 24.5 29 25.5" stroke="#3a2010" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+                <path d="M35 25.5 Q38 24.5 41 26" stroke="#3a2010" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+                <!-- nose — delicate -->
+                <path d="M31.5 33 Q31 35.5 32 36.5 Q33 35.5 32.5 33" stroke="#c8906a" stroke-width="1" fill="none" stroke-linecap="round"/>
+                <!-- mouth — calm slight smile -->
+                <path d="M27.5 40 Q32 43 36.5 40" stroke="#c06050" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                <path d="M29 40.5 Q32 42 35 40.5" fill="#d07060" opacity="0.4"/>
+                <!-- small earring -->
+                <circle cx="18.5" cy="33" r="1.2" fill="#1D9E75"/>
+              </svg>
+            </div>
+            <div class="agent-meta">
+              <div class="agent-role">Deployment</div>
+              <div class="agent-name">Amy</div>
+            </div>
+          </div>
+          <p class="agent-tagline">"Ships at the speed of trust. Zero downtime, zero drama, zero excuses."</p>
+          <p class="agent-bio">Calm, decisive, owns production. Amy takes Christopher's cleared PRs and deploys them flawlessly — health checks, rollbacks, and observability all handled without a word.</p>
+          <div class="tech-pills">
+            <span class="pill">TrueFoundry</span>
+            <span class="pill">Ghost.build</span>
+          </div>
+          <div class="agent-status">
+            <div class="pulse-dot"></div>
+            <span class="status-text" id="amy-status">Deploying v2.4.1 to production...</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section id="how">
+    <div style="max-width:900px;margin:0 auto;">
+      <div class="section-header" style="text-align:center;">
+        <p class="section-label">Process</p>
+        <h2 class="section-title">How it works</h2>
+        <p class="section-sub" style="margin:0 auto;">From spec to production in one autonomous loop.</p>
+      </div>
+      <div class="pipeline">
+        <div class="pipeline-node">
+          <div class="pipeline-circle spec">Spec</div>
+          <div class="pipeline-label"><strong>You</strong>Write the spec</div>
+        </div>
+        <div class="pipeline-line"></div>
+        <div class="pipeline-node">
+          <div class="pipeline-circle sean-c">Sean</div>
+          <div class="pipeline-label"><strong>Sean</strong>Builds it</div>
+        </div>
+        <div class="pipeline-line"></div>
+        <div class="pipeline-node">
+          <div class="pipeline-circle chris-c">Chris</div>
+          <div class="pipeline-label"><strong>Christopher</strong>Secures it</div>
+        </div>
+        <div class="pipeline-line"></div>
+        <div class="pipeline-node">
+          <div class="pipeline-circle amy-c">Amy</div>
+          <div class="pipeline-label"><strong>Amy</strong>Ships it</div>
+        </div>
+        <div class="pipeline-line"></div>
+        <div class="pipeline-node">
+          <div class="pipeline-circle live">🚀</div>
+          <div class="pipeline-label"><strong>Live</strong>In production</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY SHIPIFY -->
+  <section id="why">
+    <div style="max-width:900px;margin:0 auto;">
+      <div class="section-header" style="text-align:center;">
+        <p class="section-label">Why Shipify</p>
+        <h2 class="section-title">Built different</h2>
+      </div>
+      <div class="why-grid">
+        <div class="why-card">
+          <div class="why-icon">⚡</div>
+          <div class="why-title">Speed</div>
+          <p class="why-desc">No standups. No blockers. Just output. Your agents work in parallel, around the clock, without waiting for a calendar invite.</p>
+        </div>
+        <div class="why-card">
+          <div class="why-icon">🔒</div>
+          <div class="why-title">Security</div>
+          <p class="why-desc">Every PR red-teamed before it merges. Christopher runs AST analysis and vulnerability scanning on every single commit — no exceptions.</p>
+        </div>
+        <div class="why-card">
+          <div class="why-icon">📡</div>
+          <div class="why-title">Reliability</div>
+          <p class="why-desc">Zero-downtime deploys, every time. Amy owns production with health checks, rollback logic, and full observability baked in.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TECH STACK -->
+  <section id="stack">
+    <div style="max-width:1000px;margin:0 auto;">
+      <div class="section-header" style="text-align:center;">
+        <p class="section-label">Powered by</p>
+        <h2 class="section-title">The stack</h2>
+        <p class="section-sub" style="margin:0 auto;">Best-in-class tools, wired together by OpenClaw.</p>
+      </div>
+      <div class="stack-grid">
+        <div class="stack-card">
+          <div class="stack-name">Kiro</div>
+          <p class="stack-desc">AI coding agent that writes, reviews, and iterates on production-grade code.</p>
+        </div>
+        <div class="stack-card">
+          <div class="stack-name">Macroscope</div>
+          <p class="stack-desc">AST-based security analysis that scans every PR for vulnerabilities before merge.</p>
+        </div>
+        <div class="stack-card">
+          <div class="stack-name">TrueFoundry</div>
+          <p class="stack-desc">Deployment platform with built-in observability, health checks, and rollback.</p>
+        </div>
+        <div class="stack-card">
+          <div class="stack-name">Ghost.build</div>
+          <p class="stack-desc">Agent database layer — persistent memory and state across all agent sessions.</p>
+        </div>
+        <div class="stack-card">
+          <div class="stack-name">Airbyte</div>
+          <p class="stack-desc">Syncs context and Slack memory so agents always have the full picture.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p class="footer-main">Built at Deep Agents Hackathon · RSAC 2026 · Shipify</p>
+    <p class="footer-sub">Running on OpenClaw</p>
+  </footer>
+
+  <!-- MODAL -->
+  <div class="modal-overlay" id="modal" onclick="handleOverlayClick(event)">
+    <div class="modal">
+      <button class="modal-close" onclick="closeModal()" aria-label="Close">✕</button>
+      <h2 class="modal-title">Request early access</h2>
+      <p class="modal-sub">Be first in line when Shipify opens up. No spam, ever.</p>
+      <form onsubmit="handleSubmit(event)">
+        <input type="email" placeholder="you@company.com" required autocomplete="email" />
+        <button type="submit" class="modal-submit">Get early access</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // ── Modal ──
+    function openModal() {
+      document.getElementById('modal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeModal() {
+      document.getElementById('modal').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    function handleOverlayClick(e) {
+      if (e.target === document.getElementById('modal')) closeModal();
+    }
+    function handleSubmit(e) {
+      e.preventDefault();
+      const btn = e.target.querySelector('.modal-submit');
+      btn.textContent = 'You\'re on the list ✓';
+      btn.style.background = '#1D9E75';
+      btn.style.color = '#fff';
+      setTimeout(closeModal, 1800);
+    }
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+    // ── Status cycling ──
+    const statuses = {
+      sean: [
+        'Committing main.py...',
+        'Resolving merge conflict #12...',
+        'Opening PR #48...'
+      ],
+      chris: [
+        'Reviewing PR #48 — scanning for vulnerabilities...',
+        '2 issues found, patching...',
+        'PR cleared. Approved.'
+      ],
+      amy: [
+        'Deploying v2.4.1 to production...',
+        'Health checks passing...',
+        'v2.4.1 is live.'
+      ]
+    };
+
+    const indices = { sean: 0, chris: 0, amy: 0 };
+
+    function cycleStatus(agent) {
+      const el = document.getElementById(agent + '-status');
+      el.classList.add('fade');
+      setTimeout(() => {
+        indices[agent] = (indices[agent] + 1) % statuses[agent].length;
+        el.textContent = statuses[agent][indices[agent]];
+        el.classList.remove('fade');
+      }, 400);
+    }
+
+    // Stagger start times so they don't all cycle at once
+    setTimeout(() => setInterval(() => cycleStatus('sean'), 4000), 0);
+    setTimeout(() => setInterval(() => cycleStatus('chris'), 4000), 1333);
+    setTimeout(() => setInterval(() => cycleStatus('amy'), 4000), 2666);
+  </script>
+</body>
+</html>
